@@ -103,7 +103,9 @@ def clone_progress():
             if m: step, prog = m.group(1), m.group(2)
     tail = ""
     if os.path.exists(LOG):
-        tail = "".join(open(LOG).read().splitlines(True)[-8:])
+        # 只读尾部 15 行, 避免读入超大旧日志导致界面卡顿
+        tail = sh(f"tail -n 15 {LOG} 2>/dev/null").splitlines()
+        tail = "\n".join(tail[-15:])
     with LOCK:
         running = clone_proc is not None and clone_proc.poll() is None
     return {"step": step, "progress": int(prog), "running": running, "log": tail}
@@ -209,7 +211,9 @@ async function pollProgress(){
   if(p.running||p.step!=='idle'){
     wrap.style.display='block';
     document.getElementById('prog').style.width=p.progress+'%';
-    document.getElementById('logbox').textContent=p.log;
+    const lb=document.getElementById('logbox');
+    lb.textContent=p.log;
+    lb.scrollTop=lb.scrollHeight;   // 自动滚到底部
     if(!p.running&&p.step==='done'){toast('克隆完成! 可重启进入 SATA 系统');refresh()}
     setTimeout(pollProgress,1500);
   }else{wrap.style.display='none'}
