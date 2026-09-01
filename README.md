@@ -1,4 +1,4 @@
-# BootMgr — eMMC/SATA 双系统启动管理器 (RK3566 Armbian)
+# BootMgr — eMMC/SATA 双系统启动管理器 (RK3566 WXY-OEC/T Armbian)
 
 WebUI 控制 RK3566 盒子在 **eMMC（恢复系统）** 与 **SATA（日常系统）** 之间切换启动，
 并支持**一键克隆** eMMC 系统到 SATA 盘（rsync 文件级，只拷贝实际数据）与**一键恢复**。
