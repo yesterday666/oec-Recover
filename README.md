@@ -27,10 +27,22 @@ U-Boot (eMMC 引导) → 内核/initrd (eMMC /boot) → root=UUID → 目标 roo
 
 ## 快速开始
 
+### 方式一：在线一键安装（推荐）
+
+在盒子上执行一条命令，自动从 GitHub 拉取仓库并部署：
+
 ```bash
-# 在盒子上下载或拷贝本仓库后:
+curl -sSL https://raw.githubusercontent.com/yesterday666/oec-Recover/main/install.sh | sudo bash
+```
+
+安装完成后浏览器访问: `http://<盒子IP>:8080`
+
+### 方式二：本地部署
+
+下载仓库到盒子后：
+
+```bash
 sudo bash deploy.sh
-# 然后浏览器访问: http://<盒子IP>:8080
 ```
 
 `deploy.sh` 自动完成：安装依赖 → 部署 `/opt/bootmgr` → systemd 自启 →
@@ -40,9 +52,10 @@ sudo bash deploy.sh
 
 | 文件 | 作用 |
 |---|---|
+| `install.sh` | 在线一键安装（拉取仓库 → 自动部署） |
 | `bootmgr.py` | WebUI 服务（Python 标准库，零依赖，端口 8080） |
 | `clone.sh` | 克隆流水线（rsync 文件级克隆 + UUID 生成 + 配置修复 + 切 bootdev） |
-| `deploy.sh` | 一键部署脚本 |
+| `deploy.sh` | 部署脚本（依赖、systemd、env 备份、bootcmd 注入） |
 | `bootmgr.service` | systemd 单元（deploy.sh 自动生成） |
 
 ## API
