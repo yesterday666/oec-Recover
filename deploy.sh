@@ -2,7 +2,7 @@
 # ============================================================
 # BootMgr 一键部署脚本 — eMMC/SATA 双系统启动管理器
 # 适用: RK3566 盒子 (OPHub Armbian, extlinux 引导, U-Boot 从 eMMC 引导)
-# 用法: sudo bash deploy.sh [--port <端口>]   # 默认 8080, 可自定义避免冲突
+# 用法: sudo bash deploy.sh [--port <端口>]   # 默认 9090, 可自定义避免冲突
 # 功能: 安装依赖 → 部署 /opt/bootmgr → systemd 自启 → 备份 U-Boot env
 #       → 配置 bootcmd(bootdev 切换) → 生成 extlinux 双配置
 # 安全: bootcmd 修改前自动备份 env; 全程可重复执行(幂等)
@@ -10,8 +10,8 @@
 set -u
 
 # ---------- 参数解析 ----------
-# 端口优先级: --port 参数 > BOOTMGR_PORT 环境变量 > 默认 8080
-PORT="${BOOTMGR_PORT:-8080}"
+# 端口优先级: --port 参数 > BOOTMGR_PORT 环境变量 > 默认 9090
+PORT="${BOOTMGR_PORT:-9090}"
 while [ $# -gt 0 ]; do
   case "$1" in
     --port) PORT="${2:-$PORT}"; shift 2 ;;

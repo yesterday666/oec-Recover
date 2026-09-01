@@ -35,13 +35,14 @@ U-Boot (eMMC 引导) → 内核/initrd (eMMC /boot) → root=UUID → 目标 roo
 curl -sSL https://raw.githubusercontent.com/yesterday666/oec-Recover/main/install.sh | sudo bash
 ```
 
-安装完成后浏览器访问: `http://<盒子IP>:8080`
+安装完成后浏览器访问: `http://<盒子IP>:9090`
 
-> 💡 **自定义端口**：8080 可能与 qbittorrent 等应用冲突。安装时指定端口：
+> 💡 **自定义端口**：默认 9090（避开 qbittorrent 的 8080）。部署时指定其他端口：
 > ```bash
-> curl -sSL https://raw.githubusercontent.com/yesterday666/oec-Recover/main/install.sh | sudo BOOTMGR_PORT=9090 bash
+> curl -sSL https://raw.githubusercontent.com/yesterday666/oec-Recover/main/install.sh | sudo BOOTMGR_PORT=8080 bash
+> # 或本地: sudo bash deploy.sh --port 8080
 > ```
-> 或部署后修改 `/opt/bootmgr/bootmgr.conf`（写入 `BOOTMGR_PORT=9090`）再 `systemctl restart bootmgr`。
+> 部署后也可修改 `/opt/bootmgr/bootmgr.conf`（写入 `BOOTMGR_PORT=8080`）再 `systemctl restart bootmgr`。
 
 ### 方式二：本地部署
 

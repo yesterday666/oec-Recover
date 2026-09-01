@@ -3,7 +3,7 @@
 # bootmgr.py — RK3566 盒子双系统启动管理器 WebUI
 #   控制 eMMC(恢复系统) ↔ SATA(日常系统) 启动切换
 #   一键克隆 eMMC 系统到 SATA / 一键恢复 SATA 系统
-# 依赖: 仅 Python3 标准库。端口 8080, systemd: bootmgr.service
+# 依赖: 仅 Python3 标准库。端口默认 9090 (BOOTMGR_PORT 可改), systemd: bootmgr.service
 # ============================================================
 import json, os, re, subprocess, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -270,6 +270,6 @@ class H(BaseHTTPRequestHandler):
         else: self._send({"ok":False,"msg":"404"}, 404)
 
 if __name__ == "__main__":
-    PORT = int(os.environ.get("BOOTMGR_PORT", "8080"))
+    PORT = int(os.environ.get("BOOTMGR_PORT", "9090"))
     print(f"BootMgr listening on :{PORT}  (pid {os.getpid()})")
     ThreadingHTTPServer(("0.0.0.0", PORT), H).serve_forever()
