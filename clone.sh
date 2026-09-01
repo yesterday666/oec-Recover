@@ -125,6 +125,7 @@ log "fstab 已更新 (root=$NEWROOT, /boot->eMMC $EMMC_BOOT_UUID)"
 # 同步 bootmgr 到 SATA rootfs (保证 SATA 系统里的 WebUI 也是最新版)
 if [ -d /opt/bootmgr ] && [ -d "$MNT_TGT/opt/bootmgr" ]; then
   cp /opt/bootmgr/bootmgr.py /opt/bootmgr/clone.sh "$MNT_TGT/opt/bootmgr/" 2>/dev/null
+  [ -f /opt/bootmgr/bootmgr.conf ] && cp /opt/bootmgr/bootmgr.conf "$MNT_TGT/opt/bootmgr/" 2>/dev/null
   log "bootmgr 已同步到 SATA rootfs"
 fi
 # 清理临时挂载点目录

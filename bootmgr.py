@@ -270,5 +270,6 @@ class H(BaseHTTPRequestHandler):
         else: self._send({"ok":False,"msg":"404"}, 404)
 
 if __name__ == "__main__":
-    print(f"BootMgr listening on :8080  (pid {os.getpid()})")
-    ThreadingHTTPServer(("0.0.0.0", 8080), H).serve_forever()
+    PORT = int(os.environ.get("BOOTMGR_PORT", "8080"))
+    print(f"BootMgr listening on :{PORT}  (pid {os.getpid()})")
+    ThreadingHTTPServer(("0.0.0.0", PORT), H).serve_forever()

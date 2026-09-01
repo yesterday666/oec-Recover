@@ -37,6 +37,12 @@ curl -sSL https://raw.githubusercontent.com/yesterday666/oec-Recover/main/instal
 
 安装完成后浏览器访问: `http://<盒子IP>:8080`
 
+> 💡 **自定义端口**：8080 可能与 qbittorrent 等应用冲突。安装时指定端口：
+> ```bash
+> curl -sSL https://raw.githubusercontent.com/yesterday666/oec-Recover/main/install.sh | sudo BOOTMGR_PORT=9090 bash
+> ```
+> 或部署后修改 `/opt/bootmgr/bootmgr.conf`（写入 `BOOTMGR_PORT=9090`）再 `systemctl restart bootmgr`。
+
 ### 方式二：本地部署
 
 下载仓库到盒子后：

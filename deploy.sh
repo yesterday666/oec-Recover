@@ -2,12 +2,27 @@
 # ============================================================
 # BootMgr 一键部署脚本 — eMMC/SATA 双系统启动管理器
 # 适用: RK3566 盒子 (OPHub Armbian, extlinux 引导, U-Boot 从 eMMC 引导)
-# 用法: sudo bash deploy.sh
+# 用法: sudo bash deploy.sh [--port <端口>]   # 默认 8080, 可自定义避免冲突
 # 功能: 安装依赖 → 部署 /opt/bootmgr → systemd 自启 → 备份 U-Boot env
 #       → 配置 bootcmd(bootdev 切换) → 生成 extlinux 双配置
 # 安全: bootcmd 修改前自动备份 env; 全程可重复执行(幂等)
 # ============================================================
 set -u
+
+# ---------- 参数解析 ----------
+# 端口优先级: --port 参数 > BOOTMGR_PORT 环境变量 > 默认 8080
+PORT="${BOOTMGR_PORT:-8080}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --port) PORT="${2:-$PORT}"; shift 2 ;;
+    --port=*) PORT="${1#*=}"; shift ;;
+    *) echo "未知参数: $1 (用法: deploy.sh [--port <端口>])"; exit 1 ;;
+  esac
+done
+case "$PORT" in
+  ''|*[!0-9]*) echo "错误: 端口必须是数字 (got: $PORT)"; exit 1 ;;
+esac
+[ "$PORT" -ge 1 ] && [ "$PORT" -le 65535 ] || { echo "错误: 端口范围 1-65535"; exit 1; }
 
 # ---------- 路径 ----------
 BASE=/opt/bootmgr
@@ -63,14 +78,17 @@ fi
 ok "文件已部署到 $BASE"
 
 # ---------- 3. systemd 服务 ----------
-log "=== systemd 服务 ==="
-cat > /etc/systemd/system/bootmgr.service <<'EOF'
+log "=== systemd 服务 (端口 $PORT) ==="
+# 端口配置 (改这里或 --port 重部署即可换端口)
+echo "BOOTMGR_PORT=$PORT" > "$BASE/bootmgr.conf"
+cat > /etc/systemd/system/bootmgr.service <<EOF
 [Unit]
 Description=BootMgr - eMMC/SATA dual boot manager WebUI
 After=network.target
 
 [Service]
 Type=simple
+EnvironmentFile=-/opt/bootmgr/bootmgr.conf
 ExecStart=/usr/bin/python3 /opt/bootmgr/bootmgr.py
 Restart=always
 RestartSec=3
@@ -83,7 +101,7 @@ systemctl daemon-reload
 systemctl enable bootmgr >/dev/null 2>&1
 systemctl restart bootmgr
 sleep 1
-systemctl is-active bootmgr >/dev/null 2>&1 && ok "bootmgr 服务运行中 (:8080)" || warn "bootmgr 服务未启动, 检查: journalctl -u bootmgr"
+systemctl is-active bootmgr >/dev/null 2>&1 && ok "bootmgr 服务运行中 (:$PORT)" || warn "bootmgr 服务未启动, 检查: journalctl -u bootmgr"
 
 # ---------- 4. 备份 U-Boot env ----------
 log "=== U-Boot 环境变量 ==="
@@ -136,8 +154,9 @@ IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 echo
 echo "====================================================="
 echo "  ✅ BootMgr 部署完成!"
-echo "  WebUI:  http://${IP:-<盒子IP>}:8080"
+echo "  WebUI:  http://${IP:-<盒子IP>}:$PORT"
 echo "  文件:   $BASE (bootmgr.py + clone.sh)"
+echo "  端口:   $PORT (改 /opt/bootmgr/bootmgr.conf 后 systemctl restart bootmgr)"
 echo "  env备份: $ENV_BACKUP"
 echo "-----------------------------------------------------"
 echo "  使用说明:"
