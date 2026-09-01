@@ -1,0 +1,13 @@
+[Unit]
+Description=BootMgr - eMMC/SATA dual boot manager WebUI
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/bootmgr/bootmgr.py
+Restart=always
+RestartSec=3
+WorkingDirectory=/opt/bootmgr
+
+[Install]
+WantedBy=multi-user.target
