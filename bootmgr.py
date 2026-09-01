@@ -129,7 +129,7 @@ h1{font-size:22px;margin-bottom:6px;color:var(--acc)}
 .btn{display:block;width:100%;padding:12px;margin:8px 0;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .b-sata{background:#0ea5e9;color:#fff}.b-emmc{background:#64748b;color:#fff}
-.b-clone{background:#10b981;color:#fff}.b-restore{background:#f59e0b;color:#1c1917}
+.b-restore{background:#10b981;color:#fff}
 .b-reboot{background:#ef4444;color:#fff}
 #progwrap{display:none;background:#0f172a;border-radius:8px;overflow:hidden;height:22px;margin-top:10px}
 #prog{height:100%;background:linear-gradient(90deg,#10b981,#38bdf8);width:0%;transition:width .5s}
@@ -161,11 +161,10 @@ h1{font-size:22px;margin-bottom:6px;color:var(--acc)}
 </div>
 
 <div class="card"><h2>系统克隆 / 恢复</h2>
-  <button class="btn b-clone" id="b3" onclick="clone(0)">📦 克隆 eMMC → SATA（SATA 为全新盘）</button>
-  <button class="btn b-restore" id="b4" onclick="clone(1)">♻️ 一键恢复 SATA（格式化后重克隆）</button>
+  <button class="btn b-restore" id="b3" onclick="clone()">📦 一键克隆 / 恢复 SATA</button>
   <div id="progwrap"><div id="prog"></div></div>
   <div id="logbox"></div>
-  <div class="note">⚠️ 克隆会清空 SATA 盘全部数据，eMMC 恢复系统不受影响。完成后自动切换到 SATA 启动。</div>
+  <div class="note">⚠️ 将当前 eMMC 系统克隆到 SATA 盘（SATA 已有系统则先格式化）。eMMC 恢复系统不受影响，完成后自动切换到 SATA 启动。</div>
 </div>
 
 <div class="card"><h2>系统</h2>
@@ -200,8 +199,7 @@ async function refresh(){
     cloning=s.cloning;
     document.getElementById('b1').disabled=s.current==='sata'||s.cloning;
     document.getElementById('b2').disabled=s.current==='emmc'||s.cloning;
-    document.getElementById('b3').disabled=s.current!=='emmc'||s.cloning||s.sata.state==='system';
-    document.getElementById('b4').disabled=s.current!=='emmc'||s.cloning||!s.sata.present;
+    document.getElementById('b3').disabled=s.current!=='emmc'||s.cloning||!s.sata.present;
     document.getElementById('b5').disabled=s.cloning;
   }catch(e){console.log(e);document.getElementById('clock').textContent='⚠️ 状态加载失败: '+e.message}
 }
@@ -224,10 +222,13 @@ async function sw(t){
   const r=await api('/api/switch?target='+t,{method:'POST'});
   toast(r.msg,r.ok); if(r.ok)refresh();
 }
-async function clone(force){
-  const msg=force?'⚠️ 将格式化并清空 SATA 盘全部数据，然后从 eMMC 重新克隆系统。继续?':'将把当前 eMMC 系统完整克隆到 SATA 盘。继续?';
+async function clone(){
+  // 根据 SATA 状态自适应确认文案与 force 参数
+  const st=document.getElementById('sata').textContent;
+  const hasSys=st==='已有系统';
+  const msg=hasSys?'⚠️ SATA 盘已有系统，将格式化并清空后重新克隆。继续?':'将把当前 eMMC 系统完整克隆到 SATA 盘。继续?';
   if(!confirm(msg))return;
-  const r=await api('/api/clone?force='+force,{method:'POST'});
+  const r=await api('/api/clone?force='+(hasSys?1:0),{method:'POST'});
   toast(r.msg,r.ok);
   if(r.ok){document.getElementById('progwrap').style.display='block';pollProgress()}
 }
