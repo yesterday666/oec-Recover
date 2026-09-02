@@ -94,6 +94,6 @@ sudo bash deploy.sh
 
 ## 已知限制
 
-- 仅适用于 U-Boot 从 eMMC 引导的 RK3566 盒子（OPHub Armbian）
+- 仅适用于 U-Boot 从 eMMC 引导的 WXY-OEC/R RK3566 盒子（OPHub Armbian）
 - 克隆必须在 eMMC 恢复系统执行
 - SATA 口不向 3.5" 盘提供 12V 供电的盒子，需外部供电（SATA link down 现象）
